@@ -85,6 +85,43 @@ module.exports = {
 }
 ```
 
+#### Custom queries
+You can pass custom queries to test on your load test, to do it, you must create an
+array of objects:
+
+```js
+const queries = [
+  {
+    name: '<NAME_OF_QUERY_TO_TEST>',
+    query: '<YOUR_CUSTOM_QUERY>'
+  }
+]
+
+```
+
+and then pass it as the first argument to `loadTester.artillery(queries)`.
+**Note**: Write the query with the arguments, also, don't forget to write them on
+the query arguments object so the other queries can access them.
+
+##### Example:
+
+```js
+const queries = [
+  {
+    name: 'searchUser(id: "1")',
+    query: `
+      {
+        searchUser(id: "1") {
+          name
+        }
+      }
+    `
+  }
+]
+
+const testCases = automaticEGQL.artillery(queries)
+```
+
 ### artillery.yml
 The artillery file should have this minimum configuration, you can add yours in case it is needed:
 
