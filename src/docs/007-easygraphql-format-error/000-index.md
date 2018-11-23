@@ -1,0 +1,3 @@
+---
+title: easygraphql-format-error
+---
