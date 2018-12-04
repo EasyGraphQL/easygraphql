@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-[`easygraphql-load-tester`](https://github.com/EasyGraphQL/easygraphql-load-tester) is node library created to make load 
+[`easygraphql-load-tester`](https://github.com/EasyGraphQL/easygraphql-load-tester) is a node library created to make load 
 testing on GraphQL based on the schema; it'll create a bunch of queries, that are going to be the ones used to test your server.
 
 ## Installation
