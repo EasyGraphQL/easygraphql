@@ -168,6 +168,9 @@ describe('Test my queries and mutations', () => {
 + Pass as first argument, the query/mutation to mock to `.mock(query/mutation)`.
 + The second argument is required **if it is a mutation**, it must be an object with the fields of the input
 
+The result will have top level fields, it means that the result will be an object
+with a property that is going to be the name (top level field) of the query or alias with the mocked
+result.
 
 ### Mock example
 ```js
@@ -194,15 +197,27 @@ const query = `
     }
   }
 `
-const userQueryMock = tester.mock(query)
+const { getUser } = tester.mock(query)
 
-const mutation = `
-  mutation CreateUser {
-    id
-    name
+const queryWithAlias = `
+  {
+    firstUser: getUser(id: "1") {
+      id
+    }
   }
 `
-const userMutationMock = tester.mock(mutation, {
+const { firstUser } = tester.mock(queryWithAlias)
+
+
+const mutation = `
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      name
+    }
+  }
+`
+const { createUser } = tester.mock(mutation, {
   name: 'test'
 })
 
@@ -210,7 +225,7 @@ const userMutationMock = tester.mock(mutation, {
 
 ### Mock result
 ```js
-// userQueryMock
+// getUser
 { 
   id: '93',
   name: 'Tony Patrick',
@@ -230,7 +245,13 @@ const userMutationMock = tester.mock(mutation, {
   ]
 }
 
-// userMutationMock
+//firstUser
+{
+  id: '93'
+}
+
+
+// createUser
 {
   id: '93',
   name: 'Tony Patrick'
