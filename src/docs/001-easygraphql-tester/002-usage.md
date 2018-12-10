@@ -164,9 +164,13 @@ describe('Test my queries and mutations', () => {
 
 [`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) can works as a mocker of your query or mutation, using it is simple.
 
-+ Define a Query or Mutation to test.
-+ Pass as first argument, the query/mutation to mock to `.mock(query/mutation)`.
-+ The second argument is required **if it is a mutation**, it must be an object with the fields of the input
+Call the method `.mock()` and pass an object with this options:
+
++ query: It'll be the query/mutation to test.
++ variables: This is required **if it is a mutation**, it must be an object with the fields of the input.
++ fixture: This is optional and it is if you want to pass your custom fixtures.
++ saveFixture: By default is `false`, if you pass fixtures, and set it to `true` when you make the same query again,
+  it will return the fixture value.
 
 The result will have top level fields, it means that the result will be an object
 with a property that is going to be the name (top level field) of the query or alias with the mocked
@@ -197,7 +201,13 @@ const query = `
     }
   }
 `
-const { getUser } = tester.mock(query)
+
+const fixture = {
+  id: '1',
+  name: 'EasyGraphQL'
+}
+
+const { getUser } = tester.mock({ query, fixture })
 
 const queryWithAlias = `
   {
@@ -206,7 +216,7 @@ const queryWithAlias = `
     }
   }
 `
-const { firstUser } = tester.mock(queryWithAlias)
+const { firstUser } = tester.mock({ query: queryWithAlias })
 
 
 const mutation = `
@@ -217,18 +227,19 @@ const mutation = `
     }
   }
 `
-const { createUser } = tester.mock(mutation, {
+const input = {
   name: 'test'
-})
+}
 
+const { createUser } = tester.mock({ query: mutation, variables: input })
 ```
 
 ### Mock result
 ```js
 // getUser
 { 
-  id: '93',
-  name: 'Tony Patrick',
+  id: '1',
+  name: 'EasyGraphQL',
   familyInfo: [
     { 
       lastName: 'Bartoletti',
