@@ -117,6 +117,15 @@ To run your project visit the generated folder and run:
 $ npm run start
 ```
 
+## Deploying with Now ▲
+To deploy with now, be sure to have it installed and config on your computer.
+
+To use it, just pass the flag `--now` to the command on the terminal:
+
+```bash
+$ easygraphql-firebase --now
+```
+
 ## Recommendations
 This a **beta** version, so the recommendations are:
 
