@@ -14,6 +14,7 @@ in order to use it.
   + **Note**: In order to use multiples schema files, the queries and mutations must be extended.
 + The second argument is optional and it is going to be your custom schema, in case you want to pass it.
 
+*In case you have a custom scalar, set it on the second argument, if it's not set it will be {}*
 
 ### One schema file
 ```js
@@ -57,6 +58,7 @@ const userSchema = fs.readFileSync(path.join(__dirname, 'schema', 'user.gql'), '
 const familySchema = fs.readFileSync(path.join(__dirname, 'schema', 'family.gql'), 'utf8')
 
 const mockedSchema = easygraphqlMock([userSchema, familySchema], {
+  CustomScalarDate: '2018-10-10',
   Family: {
     name: 'Super test 1',
     ages: [10],
@@ -73,6 +75,7 @@ Here is the result of `mockedSchema.Family`
 { 
   name: 'Super test 1',
   ages: [ 10 ],
+  createdAt: '2018-10-10',
   user: { 
     email: 'ulalilid@herem.gl',
     username: 'tNfwN',
@@ -83,7 +86,7 @@ Here is the result of `mockedSchema.Family`
       ages: [ 10 ],
       user: { 
         email: 'ulalilid@herem.gl',
-        username: tNfwN',
+        username: 'tNfwN',
         fullName: 'Nathan Lewis',
         phone: '(231) 616-1744',
         family: ...

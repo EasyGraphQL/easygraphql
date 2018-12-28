@@ -64,7 +64,7 @@ Using the next files
 ```graphql
 type Family {
   name: String!
-  ages: [Int]!
+  ages: [Int!]!
 }
 
 type Query {
@@ -97,18 +97,19 @@ const parsedSchema = easygraphqlParser(familySchema)
         arguments: [],
         noNull: true,
         isArray: false,
-        type: 'String' 
+        noNullArrayValues: false
+        type: 'String'
       },
       { 
         name: 'ages',
         arguments: [],
         noNull: true,
         isArray: true,
-        type: 'Int' 
+        noNullArrayValues: true
+        type: 'Int'
       } 
     ],
-    values: [],
-    types: []
+    values: [] 
   },
   Query: { 
     type: 'ObjectType',
@@ -119,11 +120,11 @@ const parsedSchema = easygraphqlParser(familySchema)
         arguments: [],
         noNull: false,
         isArray: false,
-        type: 'Family' 
+        noNullArrayValues: false
+        type: 'Family'
       } 
     ],
-    values: [],
-    types: []
+    values: [] 
   } 
 }
 ```

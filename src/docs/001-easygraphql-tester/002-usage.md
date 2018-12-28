@@ -201,6 +201,8 @@ The result will have top level fields, it means that the result will be an objec
 with a property that is going to be the name (top level field) of the query or alias with the mocked
 result.
 
+*In case you have a custom scalar, set the value on the fixture, if it's not set it will be `{}`*
+
 ### Mock example
 ```js
 'use strict'
