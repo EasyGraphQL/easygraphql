@@ -91,7 +91,7 @@ const EasyGraphQLTester = require('../lib')
 const userSchema = fs.readFileSync(path.join(__dirname, 'schema', 'user.gql'), 'utf8')
 const familySchema = fs.readFileSync(path.join(__dirname, 'schema', 'family.gql'), 'utf8')
 
-describe('Test my queries and mutations', () => {
+describe('Test my queries, mutations and subscriptions', () => {
   let tester
 
   before(() => {
@@ -131,22 +131,24 @@ describe('Test my queries and mutations', () => {
 
     it('Should pass if the mutation is valid', () => {
       const mutation = `
-        mutation UpdateUserScores {
-          updateUserScores {
+        mutation UpdateUserScores($scores: ScoresInput!) {
+          updateUserScores(scores: $scores) {
             email
             scores
           }
         }
       `
       tester.test(true, mutation, {
-        scores: [1, 2, 3]
+        scores: {
+          scores: [1, 2, 3]
+        }
       })
     })
 
     it('Should not pass if one value on the mutation input is invalid', () => {
       const mutation = `
-        mutation UpdateUserScores {
-          updateUserScores {
+        mutation UpdateUserScores($scores: ScoresInput!) {
+          updateUserScores(scores: $scores) {
             email
             scores
           }
@@ -154,8 +156,10 @@ describe('Test my queries and mutations', () => {
       `
       // First arg: false, there is no invalidField on the schema.
       tester.test(false, mutation, {
-        scores: [1],
-        invalidField: true
+        scores: {
+          scores: [1],
+          invalidField: true
+        }
       })
     })
 
@@ -180,6 +184,20 @@ describe('Test my queries and mutations', () => {
       `
 
       tester.test(true, query)
+    })
+
+    it('Should test a subscription', () => {
+      const subscription = `
+        subscription {
+          newUsers(limit: 1) {
+            id
+            username
+            email
+          } 
+        }
+      `
+
+      tester.test(true, subscription)
     })
   })
 })
@@ -255,7 +273,9 @@ const mutation = `
   }
 `
 const input = {
-  name: 'test'
+  input: {
+    name: 'test'    
+  }
 }
 
 const { createUser } = tester.mock({ query: mutation, variables: input })
