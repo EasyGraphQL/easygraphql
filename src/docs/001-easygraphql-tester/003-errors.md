@@ -93,14 +93,16 @@ const familySchema = fs.readFileSync(path.join(__dirname, 'schema', 'family.gql'
 const tester = new EasyGraphQLTester([userSchema, familySchema])
 
 const mutation = `
-  mutation CreateFamily {
-    createFamily {
+  mutation CreateFamily($input: CreateFamilyInput!) {
+    createFamily(input: $input) {
       lastName
     }
   }
 `
 const test = tester.mock(mutation, {
-  lastName: 'test'
+  input: {
+    lastName: 'test'
+  }
 })
 // Error: email argument is missing on createFamily
 ```
