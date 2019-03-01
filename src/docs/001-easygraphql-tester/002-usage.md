@@ -2,6 +2,7 @@
 title: Usage
 ---
 
+
 [`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) can be used in two ways; the first one is using `.tester` as an assertion of the query/mutation, and the second one is using `.mock` to return the mocked query/mutation.
 
 ## How to use it?
@@ -39,7 +40,6 @@ const familySchema = fs.readFileSync(path.join(__dirname, 'schema', 'family.gql'
 
 const tester = new EasyGraphQLTester([userSchema, familySchema])
 ```
-
 
 ### Using GraphQL.js
 ```js
@@ -212,17 +212,67 @@ Call the method `.mock()` and pass an object with this options:
 + query: It'll be the query/mutation to test.
 + variables: This is required **if it is a mutation**, it must be an object with the fields of the input.
 + fixture: This is optional, it'll be an object with the key `data` and inside it
-  the name of the query/mutation/subscription and the fields to set. *This is not supported with fixture errors*
+  the name of the query/mutation/subscription and the fields to set.
 + saveFixture: By default is `false`, if you pass fixtures, and set it to `true` when you make the same query again,
   it will return the fixture value.
-+ errors: If you want to return a mock of custom errors, add to the fixture object a property
-  `errors` that has an array with the errors to return.
++ validateDeprecated: If you want to validate if the query is requesting a deprecated field, set this option to `true`
+  and it'll return an error if a field is deprecated.
++ mockErrors: If you want to mock the errors instead of throwing it, set this option to `true` and now, the responsw will have
+  `{ data: ..., errors: [...] }`
 
 The result will have top level fields, it means that the result will be an object
-with a property that is going to be the name (top level field) of the query or alias with the mocked
-result.
+with a property that is going to be `data` and inside it the name (top level field) 
+of the query or alias with the mocked result.
 
 *In case you have a custom scalar, set the value on the fixture, if it's not set it will be `{}`*
+
+### Fixtures:
+
+There are two ways to set the fixture on a operation:
+
+#### Operation options:
+Set the fixture as an option when testing a query/mutation/subscription
+
+E.g
+```js
+const fixture = {
+  data: {
+    getUser: {
+      id: '1',
+      name: 'EasyGraphQL'
+    }
+  }
+}
+
+const { data: { getUser } } = tester.mock({ query, fixture })
+```
+
+#### `setFixture()` method
+Also, the fixture can be set before the test using `.setFixture()` method from the constructor,
+it'll receive two arguments; the first one is going to be the fixture, and the second one will be
+an object of options to set if it should auto mock the extra fields that are on the query but are not
+on the fixture, by default it's `true`.
+
+Run `tester.clearFixture()` to return the fixture to `null` and `autoMock = true` in case you
+set it to `false`
+
+E.g
+```js
+const tester = new EasyGraphQLTester([userSchema, familySchema])
+
+const fixture = {
+  data: {
+    getUser: {
+      id: '1',
+      name: 'EasyGraphQL'
+    }
+  }
+}
+
+tester.setFixture(fixture, { autoMock: false })
+const { data: { getUser } } = tester.mock({ query })
+tester.clearFixture()
+```
 
 ### Mock example
 ```js
@@ -259,8 +309,7 @@ const fixture = {
   }
 }
 
-const { getUser } = tester.mock({ query, fixture })
-
+const { data: { getUser } } = tester.mock({ query, fixture, validateDeprecated: true })
 const { errors } = tester.mock({ 
   query, 
   fixture: {
@@ -285,7 +334,7 @@ const queryWithAlias = `
     }
   }
 `
-const { firstUser } = tester.mock({ query: queryWithAlias })
+const { data: { firstUser } } = tester.mock({ query: queryWithAlias })
 
 
 const mutation = `
@@ -302,7 +351,7 @@ const input = {
   }
 }
 
-const { createUser } = tester.mock({ query: mutation, variables: input })
+const { data: { createUser } } = tester.mock({ query: mutation, variables: input })
 ```
 
 ### Mock result
