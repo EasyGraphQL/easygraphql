@@ -65,6 +65,93 @@ const schema = new GraphQLSchema({
 const tester = new EasyGraphQLTester(schema)
 ```
 
+## Resolvers
+
+To test GraphQL resolvers, there is something extra to do in case you are not using graphql-js.
+This is going to be `async`.
+
+### Without graphql-js
+If you are not using graphql-js, you might pass the resolvers as second argument to the
+constructor in order to test the resolvers.
+
+```js
+'use strict' 
+
+const EasyGraphQLTester = require('easygraphql-tester')
+const fs = require('fs')
+const path = require('path')
+
+const resolvers = require('./resolvers')
+const userSchema = fs.readFileSync(path.join(__dirname, 'schema', 'user.gql'), 'utf8')
+
+const tester = new EasyGraphQLTester(userSchema, resolverss)
+```
+
+### Testing the resolvers
+
+After you initializate the class, you can use the method `graphql` and it'll receive
+4 arguments, the only one that is required is the first argument, those arguments are:
+
++ `query`: The query/mutation you want to test.
++ `rootValue`: It's going to be the rootValue to pass to the resolver.
++ `contextValue`: It's going to be the context to pass to the resolver.
++ `variableValues`: It's going to be the variables that the query/mutation are going to use.
+
+```js
+'use strict' 
+
+const EasyGraphQLTester = require('easygraphql-tester')
+
+const schema = `
+  type FamilyInfo {
+    id: ID!
+    isLocal: Boolean!
+  }
+
+  type Query {
+    getFamilyInfoByIsLocal(isLocal: Boolean!): FamilyInfo
+  }
+`
+
+const query = `
+  query TEST($isLocal: Boolean!) {
+    getFamilyInfoByIsLocal(isLocal: $isLocal) {
+      id
+      isLocal
+    }
+  }
+`
+
+function getFamilyInfoByIsLocal(__, args, ctx) {
+  return {
+    id: 1,
+    isLocal: args.isLocal
+  }
+}
+
+const resolvers = {
+  Query: {
+    getFamilyInfoByIsLocal    
+  }
+}
+
+const tester = new EasyGraphQLTester(schema, resolvers)
+
+tester.graphql(query, undefined, undefined, { isLocal: false })
+  .then(result => console.log(result))
+  .catch(err => console.log(err))
+
+// result
+// {
+//   "data": {
+//     "getFamilyInfoByIsLocal": {
+//       "id": "1",
+//       "isLocal": false
+//     }
+//   }
+}
+```
+
 ## Assertion
 
 [`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) works as an assertion library used to make tests **with your favorite test runner**.
