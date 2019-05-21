@@ -84,7 +84,7 @@ const path = require('path')
 const resolvers = require('./resolvers')
 const userSchema = fs.readFileSync(path.join(__dirname, 'schema', 'user.gql'), 'utf8')
 
-const tester = new EasyGraphQLTester(userSchema, resolverss)
+const tester = new EasyGraphQLTester(userSchema, resolvers)
 ```
 
 ### Testing the resolvers
