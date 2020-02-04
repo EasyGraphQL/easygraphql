@@ -1,11 +1,11 @@
-import React from 'react'
-import Helmet from 'react-helmet'
-import Header from '../components/Header'
-import Link from 'gatsby-link'
-import { pickBy, mapKeys, pick, identity } from 'lodash'
-import styled, { injectGlobal } from 'styled-components'
-import Nav from '../components/docs/Nav'
-import Sidebar from '../components/docs/Sidebar'
+import React from "react";
+import Helmet from "react-helmet";
+import Header from "../components/Header";
+import Link from "gatsby-link";
+import { pickBy, mapKeys, pick, identity } from "lodash";
+import styled, { injectGlobal } from "styled-components";
+import Nav from "../components/docs/Nav";
+import Sidebar from "../components/docs/Sidebar";
 
 const Documentation = styled.main`
   float: left;
@@ -17,7 +17,7 @@ const Documentation = styled.main`
     width: 100%;
     margin: 0;
   }
-`
+`;
 
 const DocContents = styled.div`
   /**
@@ -126,7 +126,7 @@ const DocContents = styled.div`
     max-width: 600px;
     width: 98%;
   }
-`
+`;
 
 const DocHeader = styled.header`
   padding: 0 0 0.25em 0;
@@ -137,39 +137,54 @@ const DocHeader = styled.header`
     margin-top: 0;
     margin-bottom: 0.5em;
   }
-`
+`;
 
 export default ({ pathContext, location }) => {
-  const { page, nav } = pathContext
+  const { page, nav } = pathContext;
   const description = page.frontmatter.description ? (
     <p>{page.frontmatter.description}</p>
   ) : (
-    ''
-  )
+    ""
+  );
 
   const extras = pickBy(
     mapKeys(
-      pick(page.frontmatter, ['tests', 'issues', 'edit']),
+      pick(page.frontmatter, ["tests", "issues", "edit"]),
       (href, text) => {
         switch (text) {
-          case 'tests':
-            return 'Litmus Tests'
+          case "tests":
+            return "Litmus Tests";
 
-          case 'issues':
-            return 'Report a Bug'
+          case "issues":
+            return "Report a Bug";
 
-          case 'edit':
-            return 'Edit this Page'
+          case "edit":
+            return "Edit this Page";
         }
       }
     ),
     identity
-  )
+  );
 
   return (
     <div>
       <Helmet>
         <title>{page.frontmatter.title}</title>
+        <script>
+          {(function(o, w, l, a, m) {
+            o["owl"] =
+              o["owl"] ||
+              function() {
+                (o["owl"].q = o["owl"].q || []).push(arguments);
+              };
+            (a = w.createElement("script")),
+              (m = w.getElementsByTagName("head")[0]);
+            o.__owlSettings = { owlId: "be26ab47cfb0" };
+            a.async = 1;
+            a.src = l;
+            m.parentNode.insertBefore(a, m);
+          })(window, document, "https://static.owlsights.com/min.index.js")}
+        </script>
       </Helmet>
       <Header currentPath={location.pathname} fixed />
       <Nav nav={nav} currentPath={location.pathname} />
@@ -182,5 +197,5 @@ export default ({ pathContext, location }) => {
       </Documentation>
       <Sidebar headings={page.headings} extras={extras} />
     </div>
-  )
-}
+  );
+};

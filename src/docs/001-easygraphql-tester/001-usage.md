@@ -2,16 +2,207 @@
 title: Usage
 ---
 
+## Installation
 
-[`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) can be used in two ways; the first one is using `.tester` as an assertion of the query/mutation, and the second one is using `.mock` to return the mocked query/mutation.
+It can be installed with either npm or yarn
+```shell
+$ npm install graphql --save
+$ npm install easygraphql-tester --save-dev
+```
+
+```shell
+$ yarn add graphql
+$ yarn add easygraphql-tester --dev
+```
 
 ## How to use it?
 
-+ Import [`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) package.
-+ Read the schema.
-+ Initialize the tester, and pass the schema as an argument.
-  + If there are multiples schemas pass an array with the schemas an argument.
-  + **Note**: In order to use multiples schema files, the queries and mutations must be extended.
+[`easygraphql-tester`][1] can be used to make different types of tests. Those 
+different types are going to be:
+
++ To test the resolvers.
++ To test the queries, mutations and subscriptions with mocked data.
++ As an assertion package
+
+## Testing GraphQL resolvers
+
+To execute a query against your GraphQL resolvers, you should use the  method \
+`grapqhl` from the class initializated.
+
+it'll receive 4 arguments, the only one that is required is the first argument, 
+those arguments are:
+
++ `query`: The query/mutation you want to test.
++ `rootValue`: It's going to be the rootValue to pass to the resolver.
++ `contextValue`: It's going to be the context to pass to the resolver.
++ `variableValues`: It's going to be the variables that the query/mutation are going to use.
+
+
+```js
+const gql = require('graphql-tag')
+const EasyGraphQLTester = require('easygraphql-tester')
+const tester = new EasyGraphQLTester(schema)
+
+const query = gql`
+  {
+    user(id: 5) {
+      firstName
+      lastName
+    }
+  }
+`
+
+const result = await tester.graphql(query)
+```
+
+### Using GraphQL.js
+
+#### schema.js
+```js
+'use strict'
+
+const { GraphQLSchema, GraphQLObjectType, GraphQLString } = require('graphql')
+
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'RootQueryType',
+    fields: {
+      hello: {
+        type: GraphQLString,
+        resolve() {
+          return 'Hello World!';
+        }
+      }
+    }
+  })
+});
+
+module.exports = schema
+```
+
+#### test/resolvers.js
+```js
+"use strict";
+
+const gql = require('graphql-tag')
+const { expect } = require("chai");
+const EasyGraphQLTester = require("easygraphql-tester");
+
+const schema = require("../schema");
+const tester = new EasyGraphQLTester(schema);
+
+describe("Test resolvers", () => {
+  it("should return expected values", async () => {
+    const query = gql`
+      {
+        hello
+      }
+    `;
+
+    const result = await tester.graphql(query);
+    expect(result.data.hello).to.be.eq("Hello World!");
+  });
+});
+```
+
+### Without graphql-js
+If you are not using graphql-js, you might pass the resolvers as second argument 
+to the constructor in order to test the resolvers.
+
+#### schema.js
+```js
+'use strict' 
+
+const schema = `
+  type Query {
+    hello: String!
+  }
+`
+
+function hello(root, args, ctx) {
+  return 'Hello World!'
+}
+
+const resolvers = {
+  Query: {
+    hello    
+  }
+}
+
+module.exports = { schema, resolvers }
+```
+
+#### test/resolvers.js
+```js
+"use strict";
+
+const gql = require('graphql-tag')
+const { expect } = require("chai");
+const EasyGraphQLTester = require("easygraphql-tester");
+
+const { schema, resolvers } = require("../schema");
+const tester = new EasyGraphQLTester(schema);
+
+describe("Test resolvers", () => {
+  it("should return expected values", async () => {
+    const query = gql`
+      {
+        hello
+      }
+    `;
+
+    const result = await tester.graphql(query);
+    expect(result.data.hello).to.be.eq("Hello World!");
+  });
+});
+```
+
+
+## Resolvers
+
+To test GraphQL resolvers, there is something extra to do in case you are not using graphql-js.
+This is going to be `async`.
+
+
+
+
+
+```js
+'use strict' 
+
+const EasyGraphQLTester = require('easygraphql-tester')
+const fs = require('fs')
+const path = require('path')
+
+const resolvers = require('./resolvers')
+const userSchema = fs.readFileSync(path.join(__dirname, 'schema', 'user.gql'), 'utf8')
+
+const tester = new EasyGraphQLTester(userSchema, resolvers)
+```
+
+### Testing the resolvers
+
+After you initializate the class, you can use the method `graphql` and 
+
+```js
+
+
+const tester = new EasyGraphQLTester(schema, resolvers)
+
+tester.graphql(query, undefined, undefined, { isLocal: false })
+  .then(result => console.log(result))
+  .catch(err => console.log(err))
+
+// result
+// {
+//   "data": {
+//     "getFamilyInfoByIsLocal": {
+//       "id": "1",
+//       "isLocal": false
+//     }
+//   }
+}
+```
 
 
 ### One schema file
@@ -41,120 +232,11 @@ const familySchema = fs.readFileSync(path.join(__dirname, 'schema', 'family.gql'
 const tester = new EasyGraphQLTester([userSchema, familySchema])
 ```
 
-### Using GraphQL.js
-```js
-'use strict'
 
-const { GraphQLSchema, GraphQLObjectType, GraphQLString } = require('graphql')
-const EasyGraphQLTester = require('easygraphql-tester')
-
-const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-      hello: {
-        type: GraphQLString,
-        resolve() {
-          return 'world';
-        }
-      }
-    }
-  })
-});
-
-const tester = new EasyGraphQLTester(schema)
-```
-
-## Resolvers
-
-To test GraphQL resolvers, there is something extra to do in case you are not using graphql-js.
-This is going to be `async`.
-
-### Without graphql-js
-If you are not using graphql-js, you might pass the resolvers as second argument to the
-constructor in order to test the resolvers.
-
-```js
-'use strict' 
-
-const EasyGraphQLTester = require('easygraphql-tester')
-const fs = require('fs')
-const path = require('path')
-
-const resolvers = require('./resolvers')
-const userSchema = fs.readFileSync(path.join(__dirname, 'schema', 'user.gql'), 'utf8')
-
-const tester = new EasyGraphQLTester(userSchema, resolvers)
-```
-
-### Testing the resolvers
-
-After you initializate the class, you can use the method `graphql` and it'll receive
-4 arguments, the only one that is required is the first argument, those arguments are:
-
-+ `query`: The query/mutation you want to test.
-+ `rootValue`: It's going to be the rootValue to pass to the resolver.
-+ `contextValue`: It's going to be the context to pass to the resolver.
-+ `variableValues`: It's going to be the variables that the query/mutation are going to use.
-
-```js
-'use strict' 
-
-const EasyGraphQLTester = require('easygraphql-tester')
-
-const schema = `
-  type FamilyInfo {
-    id: ID!
-    isLocal: Boolean!
-  }
-
-  type Query {
-    getFamilyInfoByIsLocal(isLocal: Boolean!): FamilyInfo
-  }
-`
-
-const query = `
-  query TEST($isLocal: Boolean!) {
-    getFamilyInfoByIsLocal(isLocal: $isLocal) {
-      id
-      isLocal
-    }
-  }
-`
-
-function getFamilyInfoByIsLocal(__, args, ctx) {
-  return {
-    id: 1,
-    isLocal: args.isLocal
-  }
-}
-
-const resolvers = {
-  Query: {
-    getFamilyInfoByIsLocal    
-  }
-}
-
-const tester = new EasyGraphQLTester(schema, resolvers)
-
-tester.graphql(query, undefined, undefined, { isLocal: false })
-  .then(result => console.log(result))
-  .catch(err => console.log(err))
-
-// result
-// {
-//   "data": {
-//     "getFamilyInfoByIsLocal": {
-//       "id": "1",
-//       "isLocal": false
-//     }
-//   }
-}
-```
 
 ## Assertion
 
-[`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) works as an assertion library used to make tests **with your favorite test runner**.
+[`easygraphql-tester`][1] works as an assertion library used to make tests **with your favorite test runner**.
 
 To use it as an assertion library, you must follow the next steps:
 
@@ -292,7 +374,7 @@ describe('Test my queries, mutations and subscriptions', () => {
 
 ## Mocking Queries and Mutations
 
-[`easygraphql-tester`](https://github.com/EasyGraphQL/easygraphql-tester) can works as a mocker of your query or mutation, using it is simple.
+[`easygraphql-tester`][1] can works as a mocker of your query or mutation, using it is simple.
 
 Call the method `.mock()` and pass an object with this options:
 
@@ -490,3 +572,5 @@ const { data: { createUser } } = tester.mock({ query: mutation, variables: input
   name: 'Tony Patrick'
 }
 ```
+
+[1]: https://github.com/EasyGraphQL/easygraphql-tester
