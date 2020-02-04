@@ -22,26 +22,21 @@ const DefaultLayout = ({ children }) => (
     <Helmet>
       <title>EasyGraphQL</title>
       <script>
-        <script>
-          dangerouslySetInnerHTML=
-          {{
-            __html: `
-          {(function(o, w, l, a, m) {
-            o["owl"] =
-              o["owl"] ||
-              function() {
-                (o["owl"].q = o["owl"].q || []).push(arguments);
-              };
-            (a = w.createElement("script")),
-              (m = w.getElementsByTagName("head")[0]);
-            o.__owlSettings = { owlId: "be26ab47cfb0" };
-            a.async = 1;
-            a.src = l;
-            m.parentNode.insertBefore(a, m);
-          })(window, document, "https://static.owlsights.com/min.index.js")}
-          `
-          }}
-        </script>
+        {typeof window !== `undefined`
+          ? (function(o, w, l, a, m) {
+              o["owl"] =
+                o["owl"] ||
+                function() {
+                  (o["owl"].q = o["owl"].q || []).push(arguments);
+                };
+              (a = w.createElement("script")),
+                (m = w.getElementsByTagName("head")[0]);
+              o.__owlSettings = { owlId: "be26ab47cfb0" };
+              a.async = 1;
+              a.src = l;
+              m.parentNode.insertBefore(a, m);
+            })(window, document, "https://static.owlsights.com/min.index.js")
+          : null}
       </script>
     </Helmet>
     <ThemeProvider theme={theme}>{children()}</ThemeProvider>
