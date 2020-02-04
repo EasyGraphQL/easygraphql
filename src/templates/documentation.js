@@ -171,6 +171,9 @@ export default ({ pathContext, location }) => {
       <Helmet>
         <title>{page.frontmatter.title}</title>
         <script>
+          dangerouslySetInnerHTML=
+          {{
+            __html: `
           {(function(o, w, l, a, m) {
             o["owl"] =
               o["owl"] ||
@@ -184,6 +187,8 @@ export default ({ pathContext, location }) => {
             a.src = l;
             m.parentNode.insertBefore(a, m);
           })(window, document, "https://static.owlsights.com/min.index.js")}
+          `
+          }}
         </script>
       </Helmet>
       <Header currentPath={location.pathname} fixed />
