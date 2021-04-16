@@ -31,7 +31,7 @@ const DefaultLayout = ({ children }) => (
                 };
               (a = w.createElement("script")),
                 (m = w.getElementsByTagName("head")[0]);
-              o.__owlSettings = { owlId: "be26ab47cfb0" };
+              o.__owlSettings = { owlId: "56e0e38cd8d9" };
               a.async = 1;
               a.src = l;
               m.parentNode.insertBefore(a, m);
